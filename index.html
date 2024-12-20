@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopScout</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+
+        header {
+            background: linear-gradient(90deg, #4a90e2, #9013fe);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .filter {
+            margin-top: 10px;
+        }
+
+        .filter label {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid #eaeaea;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none; /* Убираем подчеркивание ссылок */
+            color: inherit; /* Наследуем цвет текста */
+        }
+
+        .product-card img {
+            width: 100%; /* Ширина 100% от родителя */
+            height: 150px; /* Фиксированная высота */
+            object-fit: cover; /* Заполнение контейнера с сохранением пропорций */
+            border-radius: 12px;
+            margin-bottom: 10px;
+            transition: transform 0.3s;
+        }
+
+        .product-card h3 {
+            margin: 10px 0;
+            font-size: 1.1em;
+            color: #333;
+        }
+
+        .product-card p {
+            font-size: 1.1em;
+            color: #4a90e2;
+            font-weight: bold;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .product-card:hover img {
+            transform: scale(1.05);
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            background: #35424a;
+            color: white;
+            position: relative;
+            bottom: 0;
+            /* width: 100%; */
+            margin-top: 20px;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Медиа-запросы для адаптивного дизайна */
+        @media (max-width: 600px) {
+            .product-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+
+            .product-card {
+                padding: 10px;
+            }
+
+            .product-card h3 {
+                font-size: 1em;
+            }
+
+            .product-card p {
+                font-size: 1em;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .product-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+
+            .product-card {
+                padding: 8px;
+            }
+
+            .product-card h3 {
+                font-size: 0.9em;
+            }
+
+            .product-card p {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>ShopScout</h1>
+    <div class="filter">
+        <label for="sort">Сортировать по цене:</label>
+        <select id="sort" onchange="sortProducts()">
+            <option value="default">Выберите...</option>
+            <option value="asc">По возрастанию</option>
+            <option value="desc">По убыванию</option>
+        </select>
+    </div>
+</header>
+
+<main class="product-grid" id="productGrid">
+
+    <a href="#" class="product-card" data-price="1000">
+        <img src="https://via.placeholder.com/200x150" alt="Товар 1">
+        <h3>Товар 1</h3>
+        <p>Цена: 1000 ₽</p>
+    </a>
+    <a href="#" class="product-card" data-price="1500">
+        <img src="https://via.placeholder.com/250x200" alt="Товар 2">
+        <h3>Товар 2</h3>
+        <p>Цена: 1500 ₽</p>
+    </a>
+    <a href="#" class="product-card" data-price="2000">
+        <img src="https://via.placeholder.com/300x250" alt="Товар 3">
+        <h3>Товар 3</h3>
+        <p>Цена: 2000 ₽</p>
+    </a>
+</main>
+
+<footer>
+    <p>© 2023 Магазин товаров. Все права защищены.</p>
+</footer>
+
+<script>
+    var result = {}
+    var items = {}
+    document.addEventListener("DOMContentLoaded", function () {
+        //Fetch data
+        fetch('./result.json')
+            .then((response) => response.json())
+            .then((json) => {
+                result = json;
+                items = json['items']
+            })
+    });
+</script>
+<script>
+    let content = document.getElementById('productGrid');
+    content.innerHTML = '';
+
+    function addElement(obj) {
+        let newEl = document.createElement('a');
+        newEl.className = 'product-card';
+        newEl.setAttribute('data-price', obj['price'].split(',')[0].replace(' ', ''));
+        newEl.href = obj['url'];
+        newEl.target = '_blank';
+
+        let item_image = document.createElement('img');
+        item_image.src = obj['image'];
+        item_image.alt = 'item_image';
+        newEl.append(item_image);
+
+        let item_title = document.createElement('h3');
+        item_title.innerText = obj['title'];
+        newEl.append(item_title);
+
+        let item_price = document.createElement('p');
+        item_price.innerText = 'Цена: ' + obj['price'];
+        newEl.append(item_price);
+
+
+        // let textContent = document.createTextNode(obj['url']);
+        // newEl.append(textContent);
+        // document.body.insertBefore(newEl, content);
+        content.append(newEl);
+    }
+
+    setTimeout(() => {
+        try {
+            for (let item in items) {
+                // console.log(item);
+                addElement(items[item]);
+
+            }
+            console.log('Finish');
+        } catch(error) {console.log(error)}
+    }, 1000)
+
+</script>
+
+<script>
+    function sortProducts() {
+        const productGrid = document.getElementById('productGrid');
+        const products = Array.from(productGrid.getElementsByClassName('product-card'));
+        const sortValue = document.getElementById('sort').value;
+
+        products.sort((a, b) => {
+            const priceA = parseInt(a.getAttribute('data-price'));
+            const priceB = parseInt(b.getAttribute('data-price'));
+
+            if (sortValue === 'asc') {
+                return priceA - priceB;
+            } else if (sortValue === 'desc') {
+                return priceB - priceA;
+            } else {
+                return 0; // Если выбран "по умолчанию", не меняем порядок
+            }
+        });
+
+        // Очистить текущие карточки и добавить отсортированные
+        productGrid.innerHTML = '';
+        products.forEach(product => productGrid.appendChild(product));
+    }
+</script>
+
+</body>
+</html>
